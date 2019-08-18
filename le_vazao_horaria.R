@@ -63,8 +63,28 @@ require(lubridate)
 # transforma Data em tipo date    
   df_estacao_pch$PeriodoEscalaInicio <- as.Date(df_estacao_pch$PeriodoEscalaInicio, 
                                                        origin="1970-01-01")
+  
+
+  
+# seleciona vazoes das pchs com mais de 30 anos de registros  
+  df_vazao_horaria_pch <- data.frame()
+  
+  for (codigo in df_estacao_pch$Codigo){
+    
+    dados_estacao <-
+      df_vazao_horaria %>%
+        subset(EstacaoCodigo == codigo)
+    
+    df_vazao_horaria_pch <- rbind(df_vazao_horaria_pch, 
+                                  dados_estacao)
+  }
+        
 
 # filtra pchs com mais de 30 anos de registros
-  df_estacao_pch30 <- 
-    df_estacao_pch %>% 
-      filter(year(PeriodoEscalaInicio) <= '1988')
+  df_vazao_horaria_pch30 <- 
+    df_vazao_horaria_pch %>% 
+      filter(year(Data) <= '1989')
+  
+  
+  head(df_vazao_horaria_pch30$Data)
+  tail(df_vazao_horaria_pch30$Data)
