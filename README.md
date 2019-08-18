@@ -1,1 +1,2 @@
-# garantia-fisica-pchs
+# Garantia Física de Pequenas Centrais Hidrelétricas
+Este estudo visa analisar o atual método de cálculo de GF de PCHs e, em seguida, comparar os valores obtidos pela metodologia vigente com uma metodologia alternativa.

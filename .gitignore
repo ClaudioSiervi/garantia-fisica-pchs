@@ -1,0 +1,27 @@
+<<<<<<< HEAD
+
+Vazoes_ANA.mdb
+Vazoes_ANA.ldb
+
+# ignora excel
+#*.xls*
+
+# ignora csv
+*.csv*
+
+# Excel temporary
+~$*.xls*
+
+
+*.Rout
+
+*.Rhistory 
+
+*.RData
+
+# Imagens
+*.png
+
+*.jpg
+
+*.jpeg
