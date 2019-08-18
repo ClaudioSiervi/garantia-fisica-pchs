@@ -19,30 +19,30 @@ require(lubridate)
   sqlTables(canal)
 
 # seleciona as colunas da tabela 'Vazoes' sem definir os tipos das colunas
-  tb_vazao_horaria <- sqlFetch(canal, "Vazoes", as.is = TRUE)
+  tb_vazao_diaria <- sqlFetch(canal, "Vazoes", as.is = TRUE)
 
 # tipos da tabela 'Vazoes' no banco de dados
   sqlColumns(canal, "Vazoes")
 
 # tipos da tabela 'Vazoes' importados no R
-  str(tb_vazao_horaria)
+  str(tb_vazao_diaria)
   
 # seleciona as variáveis de interesse tabela 'Vazoes' 
-  df_vazao_horaria <- tb_vazao_horaria %>% 
+  df_vazao_diaria <- tb_vazao_diaria %>% 
     select(RegistroID, Data, EstacaoCodigo, NivelConsistencia,
            Vazao01, Vazao02, Vazao03, Vazao04, Vazao05, Vazao06,
            Vazao07, Vazao08, Vazao09, Vazao10, Vazao11, Vazao12,
            Vazao13, Vazao14, Vazao15, Vazao16, Vazao17, Vazao18,
-           Vazao19, Vazao20, Vazao21,Vazao22, Vazao23, Vazao24)
+           Vazao19, Vazao20, Vazao21, Vazao22, Vazao23, Vazao24,
+           Vazao25, Vazao26, Vazao27, Vazao28, Vazao29, Vazao30,
+           Vazao31)
 
 # transforma Data em tipo date    
-  df_vazao_horaria$Data <- format(as.Date(df_vazao_horaria$Data, origin="1970-01-01"),
+  df_vazao_diaria$Data <- format(as.Date(df_vazao_diaria$Data, origin="1970-01-01"),
                                 '%Y-%m-%d %H:%M:%S')
 
 
   
-  
-    
 # seleciona as colunas da tabela 'Estacao' sem definir os tipos das colunas
   tb_estacao_hidro <- sqlFetch(canal, "Estacao", as.is = TRUE)  
 
@@ -54,37 +54,40 @@ require(lubridate)
     select(RegistroID, RioCodigo, EstadoCodigo, MunicipioCodigo, 
            Codigo, Nome, PeriodoEscalaInicio, UltimaAtualizacao)
   
-# seleciona registros PCHs
+# seleciona registros pchs na tabela 'Estacao'
   df_estacao_pch <- df_estacao[grep('PCH', df_estacao$Nome), ]
   
-# ordena pela data de início dos registros
-  df_estacao_pch <- df_estacao_pch[ order(df_estacao_pch$PeriodoEscalaInicio), ]
-  
-# transforma Data em tipo date    
-  df_estacao_pch$PeriodoEscalaInicio <- as.Date(df_estacao_pch$PeriodoEscalaInicio, 
-                                                       origin="1970-01-01")
-  
 
-  
-# seleciona vazoes das pchs com mais de 30 anos de registros  
-  df_vazao_horaria_pch <- data.frame()
+# seleciona vazoes das pchs na tabela 'Vazoes'
+  df_vazao_diaria_pch <- data.frame()
   
   for (codigo in df_estacao_pch$Codigo){
     
-    dados_estacao <-
-      df_vazao_horaria %>%
+    vazao_estacao <-
+      df_vazao_diaria %>%
         subset(EstacaoCodigo == codigo)
     
-    df_vazao_horaria_pch <- rbind(df_vazao_horaria_pch, 
-                                  dados_estacao)
+    estacao <- 
+      df_estacao_pch %>%
+        filter(Codigo == codigo)
+    
+    vazao_estacao <- 
+      vazao_estacao %>% 
+        mutate(nome_pch = estacao$Nome)
+    
+    df_vazao_diaria_pch <- rbind(df_vazao_diaria_pch, 
+                                 vazao_estacao)
   }
         
 
-# filtra pchs com mais de 30 anos de registros
-  df_vazao_horaria_pch30 <- 
-    df_vazao_horaria_pch %>% 
+# filtra vazão diárias de pchs com mais de 30 anos de registros horários
+  df_vazao_diaria_pch30 <- 
+    df_vazao_diaria_pch %>% 
       filter(year(Data) <= '1989')
   
   
-  head(df_vazao_horaria_pch30$Data)
-  tail(df_vazao_horaria_pch30$Data)
+# ordena pela data de início dos registros
+  df_estacao_pch <- df_vazao_diaria_pch30[ order(df_vazao_diaria_pch30$Data), ]
+  
+  head(df_vazao_diaria_pch30,30)
+  tail(df_vazao_diaria_pch30$Data)
