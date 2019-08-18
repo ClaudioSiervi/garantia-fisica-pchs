@@ -2,6 +2,7 @@
 
 library(RODBC)
 library(tidyverse)
+require(lubridate)
 
 ### LEITURA
 
@@ -26,8 +27,7 @@ library(tidyverse)
 # tipos da tabela 'Vazoes' importados no R
   str(tb_vazao_horaria)
   
-
-  # seleciona as variáveis de interess
+# seleciona as variáveis de interesse tabela 'Vazoes' 
   df_vazao_horaria <- tb_vazao_horaria %>% 
     select(RegistroID, Data, EstacaoCodigo, NivelConsistencia,
            Vazao01, Vazao02, Vazao03, Vazao04, Vazao05, Vazao06,
@@ -35,4 +35,23 @@ library(tidyverse)
            Vazao13, Vazao14, Vazao15, Vazao16, Vazao17, Vazao18,
            Vazao19, Vazao20, Vazao21,Vazao22, Vazao23, Vazao24)
 
-  head(df_vazao_horaria)
+# transforma Data em tipo date    
+  df_vazao_horaria$Data <- format(as.Date(df_vazao_horaria$Data, origin="1970-01-01"),
+                                '%Y-%m-%d %H:%M:%S')
+
+
+  
+  
+    
+# seleciona as colunas da tabela 'Estacao' sem definir os tipos das colunas
+  tb_estacao_hidro <- sqlFetch(canal, "Estacao", as.is = TRUE)  
+
+# tipos da tabela 'Estacao' importados no R  
+  str(tb_estacao_hidro)
+  
+# seleciona as variáveis de interesse tabela 'Estacao'   
+  df_estacao <- tb_estacao_hidro %>%
+    select(RegistroID, RioCodigo, EstadoCodigo, MunicipioCodigo, 
+           Codigo, Nome, PeriodoEscalaInicio, UltimaAtualizacao)
+  
+  head(df_estacao)
