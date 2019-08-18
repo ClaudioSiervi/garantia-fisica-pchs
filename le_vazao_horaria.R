@@ -54,4 +54,17 @@ require(lubridate)
     select(RegistroID, RioCodigo, EstadoCodigo, MunicipioCodigo, 
            Codigo, Nome, PeriodoEscalaInicio, UltimaAtualizacao)
   
-  head(df_estacao)
+# seleciona registros PCHs
+  df_estacao_pch <- df_estacao[grep('PCH', df_estacao$Nome), ]
+  
+# ordena pela data de início dos registros
+  df_estacao_pch <- df_estacao_pch[ order(df_estacao_pch$PeriodoEscalaInicio), ]
+  
+# transforma Data em tipo date    
+  df_estacao_pch$PeriodoEscalaInicio <- as.Date(df_estacao_pch$PeriodoEscalaInicio, 
+                                                       origin="1970-01-01")
+
+# filtra pchs com mais de 30 anos de registros
+  df_estacao_pch30 <- 
+    df_estacao_pch %>% 
+      filter(year(PeriodoEscalaInicio) <= '1988')
