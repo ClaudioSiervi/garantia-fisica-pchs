@@ -46,7 +46,7 @@ require(lubridate)
                                 '%Y-%m-%d %H:%M:%S')
 
   
-# filtra pchs com mais de 30 anos de registros diários
+# filtra pchs com pelo menos 30 anos de registros diários
   q_diaria_30anos <- 
     q_diaria %>% 
       filter(year(mes_ano) <= '1987')
@@ -67,13 +67,15 @@ require(lubridate)
   
   head(q_diaria_30anos_long)
 
-# extrai os números referentes aos dias de cada registro  
-  q_diaria_30anos_long$dia <- str_sub(q_diaria_30anos_long$dia, start= -2)
+# extrai os dias de cada registro 
+  # q_diaria_30anos_long$dia <- strtoi(str_sub(q_diaria_30anos_long$dia, start= -2))
   
-# converte em inteiro
-  q_diaria_30anos_long$dia <- strtoi(q_diaria_30anos_long$dia)
+  q_diaria_30anos_long$dia <- 
+    q_diaria_30anos_long$dia %>%
+    str_sub(start= -2)
 
-# campo dia_mes_ano  
+
+# cria campo dia_mes_ano  
   q_diaria_30anos_long <- 
     q_diaria_30anos_long %>%
       mutate(data = paste0(dia, '/', month(mes_ano), '/', year(mes_ano)))
@@ -82,13 +84,47 @@ require(lubridate)
 # transforma data em tipo date    
   q_diaria_30anos_long$data <- as.Date(q_diaria_30anos_long$data,format='%d/%m/%Y')
 
+# transforma estacao_id em character
+  q_diaria_30anos_long$estacao_id <- 
+    q_diaria_30anos_long$estacao_id %>%
+      as.character()
+  
   str(q_diaria_30anos_long)
   
+# número de estações com histórico de vazão de 30 anos ou maior
+  estacoes_id <-
+    q_diaria_30anos_long %>% 
+      group_by(estacao_id) %>% 
+        summarise() 
   
-  #este <- q_diaria_30anos_long %>% filter(estacao_id==64715001
-    
-  ggplot(data=na.omit(q_diaria_30anos_long)) +
-    geom_line(aes(x=data, y=vazao, colour =as.character(estacao_id)))
+  estacoes_id %>%
+        count()
   
-  ggsave("estacoes_com_historico_maior_que_30_anos.png")
+  # registros com mais de 30 anos
+  q_diaria_30anos_long[which(q_diaria_30anos_long$estacao_id %in% estacoes_id$estacao_id), ]
+  
+  head(q_diaria_30anos_long)
+  
+  
+ for (id in estacoes_id$estacao_id[1:10]) {
+
+  print(id)
+   
+  dados <-
+    q_diaria_30anos_long[which(q_diaria_30anos_long$estacao_id %in% id), ]
+
+  print(summary(dados))
+
+  g <- ggplot(data=na.omit(dados))+
+    geom_bar(aes(x=data,
+                 y=vazao,
+                 colour = "black"),
+             stat="identity") +
+    theme(legend.title = element_blank(),
+          legend.position="none")
+  print(g)
+ }
+  
+  
+  #ggsave("estacoes_com_historico_maior_que_30_anos.png")
  
